@@ -16,9 +16,4 @@ public class AccountedSqlExecutor extends AbstractSqlExecutor {
         return transactionManager.getConnection(sqlHolder.getJdbcUrl(), sqlHolder.getAccount(), sqlHolder.getPassword());
     }
 
-    @Override
-	protected AbstractTransactionManager getTransanctionManager() {
-		return transactionManager;
-	}
-
 }

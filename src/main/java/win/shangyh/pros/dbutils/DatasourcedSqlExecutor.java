@@ -15,9 +15,4 @@ public class DatasourcedSqlExecutor extends AbstractSqlExecutor {
     protected Connection getConnection(SqlHolder sqlHolder) throws SQLException {
         return transactionManager.getConnection();
     }
-
-    @Override
-	protected AbstractTransactionManager getTransanctionManager() {
-		return transactionManager;
-	}
 }

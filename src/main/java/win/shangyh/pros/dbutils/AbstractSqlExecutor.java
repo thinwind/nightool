@@ -33,6 +33,12 @@ public abstract class AbstractSqlExecutor {
             return result;
         }
     };
+
+    public void executeSql(SqlHolder sqlHolder) {
+        QueryRunner runner = new QueryRunner();
+        executeSql(sqlHolder, runner,null);
+    }
+
     public List<Map<String, Object>> executeSqlToList(SqlHolder sqlHolder) {
         QueryRunner runner = new QueryRunner();
         return executeSql(sqlHolder, runner,MAP_HANDLER);
@@ -79,8 +85,6 @@ public abstract class AbstractSqlExecutor {
 
     private <T> List<T> executeSql(SqlHolder sqlHolder, QueryRunner runner,ResultSetHandler<T> handler) {
         Connection connection = null;
-        AbstractTransactionManager transactionManager=getTransanctionManager();
-
         try {
             connection = getConnection(sqlHolder);
         } catch (SQLException e) {
@@ -88,25 +92,25 @@ public abstract class AbstractSqlExecutor {
             throw new RuntimeException("连接获取失败", e);
         }
 
+        if(handler==null){
+            try {
+                runner.execute(connection, sqlHolder.getSql(), sqlHolder.getParams());
+                return null;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("SQL执行失败", e);
+            }
+        }
+
         try {
             List<T> result = runner.execute(connection, sqlHolder.getSql(), handler,
                     sqlHolder.getParams());
-            transactionManager.commit();
             return result;
         } catch (Exception e) {
-            try {
-                transactionManager.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
             e.printStackTrace();
             throw new RuntimeException("SQL执行失败", e);
-        } finally {
-            transactionManager.closeSilently();
         }
     }
 
     protected abstract Connection getConnection(SqlHolder sqlHolder) throws SQLException;
-
-    protected abstract AbstractTransactionManager getTransanctionManager();
 }
