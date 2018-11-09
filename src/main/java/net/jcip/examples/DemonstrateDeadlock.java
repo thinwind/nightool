@@ -1,6 +1,6 @@
 package net.jcip.examples;
 
-import java.util.*;
+import java.util.Random;
 
 import net.jcip.examples.DynamicOrderDeadlock.Account;
 import net.jcip.examples.DynamicOrderDeadlock.DollarAmount;
@@ -13,7 +13,7 @@ import net.jcip.examples.DynamicOrderDeadlock.DollarAmount;
  * @author Brian Goetz and Tim Peierls
  */
 public class DemonstrateDeadlock {
-    private static final int NUM_THREADS = 20;
+    private static final int NUM_THREADS = 2;
     private static final int NUM_ACCOUNTS = 5;
     private static final int NUM_ITERATIONS = 1000000;
 
@@ -22,10 +22,11 @@ public class DemonstrateDeadlock {
         final Account[] accounts = new Account[NUM_ACCOUNTS];
 
         for (int i = 0; i < accounts.length; i++)
-            accounts[i] = new Account();
+            accounts[i] = new Account(new DollarAmount( rnd.nextInt(2000)));
 
         class TransferThread extends Thread {
             public void run() {
+                System.out.println(Thread.currentThread().getId()+" start");
                 for (int i = 0; i < NUM_ITERATIONS; i++) {
                     int fromAcct = rnd.nextInt(NUM_ACCOUNTS);
                     int toAcct = rnd.nextInt(NUM_ACCOUNTS);
@@ -35,6 +36,7 @@ public class DemonstrateDeadlock {
                     } catch (DynamicOrderDeadlock.InsufficientFundsException ignored) {
                     }
                 }
+                System.out.println(Thread.currentThread().getId()+" complete");
             }
         }
         for (int i = 0; i < NUM_THREADS; i++)

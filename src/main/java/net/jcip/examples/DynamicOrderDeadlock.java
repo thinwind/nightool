@@ -1,6 +1,6 @@
 package net.jcip.examples;
 
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * DynamicOrderDeadlock
@@ -29,20 +29,24 @@ public class DynamicOrderDeadlock {
 
     static class DollarAmount implements Comparable<DollarAmount> {
         // Needs implementation
+        int amount;
 
         public DollarAmount(int amount) {
+            this.amount=amount;
         }
 
         public DollarAmount add(DollarAmount d) {
-            return null;
+
+            return new DollarAmount(this.amount+d.amount);
         }
 
         public DollarAmount subtract(DollarAmount d) {
-            return null;
+
+            return new DollarAmount(this.amount-d.amount);
         }
 
         public int compareTo(DollarAmount dollarAmount) {
-            return 0;
+            return this.amount-dollarAmount.amount;
         }
     }
 
@@ -51,7 +55,8 @@ public class DynamicOrderDeadlock {
         private final int acctNo;
         private static final AtomicInteger sequence = new AtomicInteger();
 
-        public Account() {
+        public Account(DollarAmount balance) {
+            this.balance=balance;
             acctNo = sequence.incrementAndGet();
         }
 
